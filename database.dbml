@@ -6,21 +6,6 @@ Project MPC {
   '''
 }
 
-Table Centers {
-    Id int [pk, increment]
-    Code varchar [note: "X200"]
-    CompanyId int [ref: > Companies.Id]
-    Description varchar [note: "SEAMLESS PIPE INDONESIA JAYA"]
-}
-
-Table Companies {
-    Id int [pk, increment]
-    Code varchar [note: "TEFR"]
-    HoldingId int [ref: > Holdings.Id]
-    CountryId int [ref: > Countries.Id]
-    HoldingGroupId int [ref: > HoldingGroups.Id]
-}
-
 Table Countries {
     Id int [pk, increment]
     Code varchar [note: "FR"]
@@ -32,21 +17,25 @@ Table Holdings {
     Description varchar
 }
 
-Table HoldingGroups {
+Table Companies {
     Id int [pk, increment]
-    Description varchar [note: "Tenaris"]
+    Code varchar [note: "TEFR"]
+    HoldingId int [ref: > Holdings.Id]
+    CountryId int [ref: > Countries.Id]
+    HoldingGroupId int [ref: > HoldingGroups.Id]
 }
 
-Table MaterialGroups {
+Table Centers {
+    Id int [pk, increment]
+    Code varchar [note: "X200"]
+    CompanyId int [ref: > Companies.Id]
+    Description varchar [note: "SEAMLESS PIPE INDONESIA JAYA"]
+}
+
+Table HoldingGroups {
     Id int [pk, increment]
     HoldingId int [ref: > Holdings.Id]
-    MaterialGroupClientId int [ref: > MaterialGroupClients.Id]
-    MaterialGroupExirosId int [ref: > MaterialGroupExiros.Id]
-    EN_Description varchar [note: "Hardware"]
-    ES_Description varchar [note: "Hardware"]
-    PT_Description varchar [note: "Hardware"]
-    IT_Description varchar [note: "Hardware"]
-    RO_Description varchar [note: "Hardware"]
+    Description varchar [note: "Tenaris"]
 }
 
 Table MaterialGroupClients {
@@ -59,15 +48,45 @@ Table MaterialGroupExiros {
     Code varchar [note: "HW"]
 }
 
-Table MaterialCodifiedHoldings {
+Table MaterialGroups {
     Id int [pk, increment]
+    MaterialGroupClientId int [ref: > MaterialGroupClients.Id]
+    MaterialGroupExirosId int [ref: > MaterialGroupExiros.Id]
+    EN_Description varchar [note: "Hardware"]
+    ES_Description varchar [note: "Hardware"]
+    PT_Description varchar [note: "Hardware"]
+    IT_Description varchar [note: "Hardware"]
+    RO_Description varchar [note: "Hardware"]
+}
+
+Table MaterialTypes {
+    Id int [pk, increment]
+    Code varchar [note: "PC"]
+}
+
+Table SapMaterials {
+    Id int [pk, increment]
+    Code varchar [note: "40041990"]
+}
+
+Table MaterialCodifieds{
+    Id int [pk, increment]
+    CenterMaterialId int [ref: > CenterMaterials.Id]
     SapMaterialId int [ref: > SapMaterials.Id]
     MaterialTypeId int [ref: > MaterialTypes.Id]
-    MaterialGroupId int [ref: > MaterialGroups.Id]
     UMId int [ref: > UMs.Id]
     IndustryStandarDescription varchar [note: "C925"]
     MMSID varchar [note: "57458"]
-    HoldingId int [ref: > Holdings.Id]
+}
+
+Table UMSAPs{
+    Id int [pk, increment]
+    Code varchar [note: "CCM"]
+}
+
+Table UMISOs {
+    Id int [pk, increment]
+    Code varchar [note: "CMQ"]
 }
 
 Table UMs {
@@ -81,55 +100,44 @@ Table UMs {
     RO_Description varchar [note: "CCM - Cubic centimter"]
 }
 
-Table UMSAPs{
+Table CenterMaterials {
     Id int [pk, increment]
-    Code varchar [note: "CCM"]
+    MaterialId int [ref: > Materials.Id]
+    IsCodified int
+    CenterId int [ref: > Centers.Id]
 }
 
-Table UMISOs {
-    Id int [pk, increment]
-    Code varchar [note: "CMQ"]
-}
-
-Table MaterialTypes {
-    Id int [pk, increment]
-    Code varchar [note: "PC"]
-}
-
-Table SapMaterials {
-    Id int [pk, increment]
-    Code varchar [note: "40041990"]
-}
-
-Table MaterialCodifiedCompanies {
-    Id int [pk, increment]
-    CompanyId int [ref: > Companies.Id]
-    MaterialCodifiedHoldingId int [ref: > MaterialCodifiedHoldings.Id]
-    MaterialCodifiedCenterId int [ref: > MaterialCodifiedCenters.Id]
-}
-
-Table MaterialCodifiedCenters {
+Table Materials {
     Id int [pk, increment]
     Code varchar [note: "82845900"]
     StandarPrice decimal [note: "0.01"]
     PriceUnit decimal [note: "1000"]
     Currency varchar [note: "BRL"]
-    CenterId int [ref: > Centers.Id]
-}
-
-Table ContractCenters{
-    Id int [pk, increment]
-    MaterialCodifiedCenterId int [ref: > MaterialCodifiedCenters.Id]
-    ContractId int [ref: > Contracts.Id]
+    MaterialGroupId int [ref: > MaterialGroups.Id]
 }
 
 Table Contracts {
     Id int [pk, increment]
-    MaterialGroupId int [ref: > MaterialGroups.Id]
-    MaterialSupplierId int [ref: > MaterialSuppliers.Id]
+    PriceUnit decimal [note: "1000"]
+    Currency varchar [note: "BRL"]
+    MaterialId int [ref: > Materials.Id]
 }
 
-Table MaterialSuppliers{
+Table CenterContracts{
+    Id int [pk, increment]
+    CenterId int [ref: > Centers.Id]
+    ContractId int [ref: > Contracts.Id]
+}
+
+Table SupplierContracts {
+    ContractId int [ref: > Contracts.Id]
+    SupplierId int [ref: > Suppliers.Id]
+    Indexes {
+        (ContractId, SupplierId)
+    }
+}
+
+Table Suppliers{
   Id int [pk, increment]
   MRSupplierId int [ref: > MRSuppliers.Id]
   Code varchar [note: "00100613"]
@@ -142,15 +150,42 @@ Table MRSuppliers {
     Code varchar [note: "100613"]
 }
 
-Table MaterialNotCodifiedHoldings {
-    Id int [pk, increment]
-    MaterialGroupId int [ref: > MaterialGroups.Id]
-    HoldingId int [ref: > Holdings.Id]
+Table SupplierCatalogs {
+    CatalogId int [ref: > Catalogs.Id]
+    SupplierId int [ref: > Suppliers.Id]
+    CenterId int [ref: > Centers.Id]
+    Indexes {
+        (CatalogId, SupplierId, CenterId)
+    }
 }
 
-Table MaterialNotCodifiedCompanies {
+Table Catalogs {
     Id int [pk, increment]
-    CompanyId int [ref: > Companies.Id]
-    MaterialNotCodifiedHoldingId int [ref: > MaterialCodifiedHoldings.Id]
-    MaterialCodifiedCenterId int [ref: > MaterialCodifiedCenters.Id]
+    Description varchar
+}
+
+Table CatalogMaterials{
+    CatalogId int
+    MaterialId int
+    Indexes {
+        (CatalogId, MaterialId)
+    }
+}
+ref: CatalogMaterials.CatalogId > Catalogs.Id
+ref: CatalogMaterials.MaterialId > Materials.Id
+
+Table CartMaterials {
+    CartId int 
+    MaterialId int
+    CatalogId int  [ref: > Catalogs.Id]
+    Indexes {
+        (CartId, MaterialId,CatalogId)
+    }
+}
+ref: CartMaterials.CartId > Carts.Id
+ref: CartMaterials.MaterialId > Materials.Id
+
+Table Carts {
+    Id int [pk, increment]
+    Description varchar
 }
