@@ -1,1 +1,1 @@
-# mdc-structure-db
+dbdocs build database.dbml --project=mdc
