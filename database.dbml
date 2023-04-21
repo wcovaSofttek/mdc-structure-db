@@ -20,7 +20,6 @@ Table Holdings {
 Table Companies {
     Id int [pk, increment]
     Code varchar [note: "TEFR"]
-    HoldingId int [ref: > Holdings.Id]
     CountryId int [ref: > Countries.Id]
     HoldingGroupId int [ref: > HoldingGroups.Id]
 }
@@ -52,11 +51,15 @@ Table MaterialGroups {
     Id int [pk, increment]
     MaterialGroupClientId int [ref: > MaterialGroupClients.Id]
     MaterialGroupExirosId int [ref: > MaterialGroupExiros.Id]
-    EN_Description varchar [note: "Hardware"]
-    ES_Description varchar [note: "Hardware"]
-    PT_Description varchar [note: "Hardware"]
-    IT_Description varchar [note: "Hardware"]
-    RO_Description varchar [note: "Hardware"]
+}
+
+Table MaterialGroupCultures {
+    MaterialGroupId int [ref: > MaterialGroups.Id]
+    CultureId int [ref: > Cultures.Id]
+    Description varchar [note: "Hardware"]
+    Indexes {
+        (MaterialGroupId, CultureId)
+    }
 }
 
 Table MaterialTypes {
@@ -71,7 +74,7 @@ Table SapMaterials {
 
 Table MaterialCodifieds{
     Id int [pk, increment]
-    CenterMaterialId int [ref: > CenterMaterials.Id]
+    MaterialId int [ref: > Materials.Id]
     SapMaterialId int [ref: > SapMaterials.Id]
     MaterialTypeId int [ref: > MaterialTypes.Id]
     UMId int [ref: > UMs.Id]
@@ -93,18 +96,20 @@ Table UMs {
     Id int [pk, increment]
     UMSAPId int [ref: > UMSAPs.Id]
     UMISOId int [ref: > UMISOs.Id]
-    EN_Description varchar [note: "CM3 - Centimetro cubico"]
-    ES_Description varchar [note: "CM3 - Centimetro cubico"]
-    PT_Description varchar [note: "CM3 - Centimetro cubico"]
-    IT_Description varchar [note: "CCM - Cubic centimter"]
-    RO_Description varchar [note: "CCM - Cubic centimter"]
 }
 
-Table CenterMaterials {
+Table UMCultures {
+    UMId int [ref: > UMs.Id]
+    CultureId int [ref: > Cultures.Id]
+    Description varchar [note: "CM3 - Centimetro cubico"]
+    Indexes {
+        (UMId, CultureId)
+    }
+}
+
+Table Cultures {
     Id int [pk, increment]
-    MaterialId int [ref: > Materials.Id]
-    IsCodified int
-    CenterId int [ref: > Centers.Id]
+    Code varchar [note: "EN"]
 }
 
 Table Materials {
@@ -116,6 +121,26 @@ Table Materials {
     MaterialGroupId int [ref: > MaterialGroups.Id]
 }
 
+Table MaterialManufacturers {
+    MaterialCofidiedId int [ref: > MaterialCodifieds.Id]
+    Name varchar [note: "ROCKWELL"]
+    Part varchar [note: "100S-C09EJ14C"]
+    Priority int [note: "1"]
+    Indexes {
+        (MaterialCofidiedId, Priority)
+    }
+}
+
+Table MaterialCultures {
+    MaterialId int [ref: > Materials.Id]
+    CultureId int [ref: > Cultures.Id]
+    Type int [note: "0 - SHORT y 1 - LONG"]
+    Description varchar [note: "CONTATOR SEGURANCA 100S-C09EJ14C"]
+    Indexes {
+        (MaterialId, CultureId, Type)
+    }
+}
+
 Table Contracts {
     Id int [pk, increment]
     PriceUnit decimal [note: "1000"]
@@ -123,17 +148,12 @@ Table Contracts {
     MaterialId int [ref: > Materials.Id]
 }
 
-Table CenterContracts{
-    Id int [pk, increment]
-    CenterId int [ref: > Centers.Id]
-    ContractId int [ref: > Contracts.Id]
-}
-
 Table SupplierContracts {
     ContractId int [ref: > Contracts.Id]
     SupplierId int [ref: > Suppliers.Id]
+    CenterId int [ref: > Centers.Id]
     Indexes {
-        (ContractId, SupplierId)
+        (ContractId, SupplierId, CenterId)
     }
 }
 
@@ -167,6 +187,7 @@ Table Catalogs {
 Table CatalogMaterials{
     CatalogId int
     MaterialId int
+    IsCodified int
     Indexes {
         (CatalogId, MaterialId)
     }
@@ -177,9 +198,8 @@ ref: CatalogMaterials.MaterialId > Materials.Id
 Table CartMaterials {
     CartId int 
     MaterialId int
-    CatalogId int  [ref: > Catalogs.Id]
     Indexes {
-        (CartId, MaterialId,CatalogId)
+        (CartId, MaterialId)
     }
 }
 ref: CartMaterials.CartId > Carts.Id
