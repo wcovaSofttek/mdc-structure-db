@@ -209,3 +209,72 @@ Table Carts {
     Id int [pk, increment]
     Description varchar
 }
+
+Table PurchaseOrders{
+    CartId int [ref: > Carts.Id]
+    CreateDate datetime
+    UserId int [ref: > Users.Id]
+}
+
+Table Users{
+    Id int [pk, increment]
+    FirstName varchar
+    LastName varchar
+    CorporationId int [ref: > Corporations.Id]
+    Email varchar
+    Photo varchar
+    Indexes{
+        (Email)
+    }
+}
+
+Table UserRoles{
+    UserId int [ref: > Users.Id]
+    RoleId int [ref: > Roles.Id]
+}
+
+Table Roles{
+    Id int [pk, increment]
+    Name varchar [note: "Administrator, Contributor, Usuario Final"]
+}
+
+Table Corporations{
+    Id int [pk, increment]
+    Name varchar
+}
+
+Table SupplierFiles{
+    Id int [pk, increment]
+    SupplierId int [ref: > Suppliers.Id]
+    FileName varchar [note: "file.csv"]
+    Url varchar [note: "url blog storage azure"]
+    Size varchar [note: "23689"]
+}
+
+Table UserMaterialFavorities{
+    MaterialId int [ref: > Materials.Id]
+    UserId int [ref: > Users.Id]
+    Indexes {
+        (UserId, MaterialId)
+    }
+}
+
+Table SupplierSyncProcesses{
+    Id int [pk, increment]
+    SupplierId int [ref: > Suppliers.Id]
+    Status varchar [note: "Running, Synchronized, Paused" ]
+}
+
+Table SupplierSyncProcessLogs{
+    Id int [pk, increment]
+    SupplierSyncProcessId int [ref: > SupplierSyncProcesses.Id]
+    Detail varchar
+    Date datetime
+}
+
+Table UserLogs{
+    Id int [pk, increment]
+    UserId int [ref: > Users.Id]
+    Date datetime
+    Detail varchar
+}
